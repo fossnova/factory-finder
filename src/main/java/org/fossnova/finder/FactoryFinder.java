@@ -37,7 +37,17 @@ public final class FactoryFinder {
     }
 
     /**
-     * Instantiates a factory object given the factory's interface class name.
+     * Instantiates a factory object given the factory's interface class.
+     *
+     * @param factoryIface required factory interface class to look impl. for
+     * @return a factory object
+     */
+    public static <T> T find( final Class< T > factoryIface ) {
+        return find( factoryIface, null );
+    }
+
+    /**
+     * Instantiates a factory object given the factory's interface class.
      *
      * @param factoryIface required factory interface class to look impl. for
      * @param fallbackFactoryImplName optional fallback factory impl. class name
