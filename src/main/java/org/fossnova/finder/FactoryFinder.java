@@ -27,6 +27,9 @@ import java.io.InputStreamReader;
 
 /**
  * Class loader leak free factory finder utility.
+ * This class is alternative to <code>java.util.ServiceLoader</code>.
+ * It always ignores current context class loader
+ * which is many times the main cause of various class loader leaks.
  *
  * @author <a href="mailto:opalka dot richard at gmail dot com">Richard Opalka</a>
  */
