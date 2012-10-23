@@ -28,73 +28,35 @@
   <groupId>org.fossnova</groupId>
   <artifactId>fossnova-factory-finder</artifactId>
   <version>1.0.0.Beta2-SNAPSHOT</version>
+  <url>http://fossnova.org/factory-finder</url>
 
-  <url>http://www.fossnova.org/factory-finder</url>
+  <parent>
+    <groupId>org.fossnova</groupId>
+    <artifactId>fossnova-maven-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.checkstyle.plugin.version>2.6</maven.checkstyle.plugin.version>
-    <maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
-    <maven.javadoc.plugin.version>2.8</maven.javadoc.plugin.version>
-  </properties>
+  <scm>
+    <connection>scm:git:git@github.com:fossnova/factory-finder.git</connection>
+    <developerConnection>scm:git:git@github.com:fossnova/factory-finder.git</developerConnection>
+    <url>http://github.com/fossnova/factory-finder</url>
+  </scm>
+
+  <issueManagement>
+    <system>github</system>
+    <url>https://github.com/fossnova/factory-finder/issues</url>
+  </issueManagement>
 
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <encoding>UTF-8</encoding>
-          <source>1.5</source>
-          <target>1.5</target>
-          <showDeprecation>true</showDeprecation>
-          <showWarnings>true</showWarnings>
-          <optimize>true</optimize>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
           <configLocation>${project.baseUri}/checkstyle/api.xml</configLocation>
-          <consoleOutput>true</consoleOutput>
-          <failsOnError>true</failsOnError>
-          <useFile/>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <detectJavaApiLink>false</detectJavaApiLink>
-          <detectLinks>false</detectLinks>
-          <doctitle><![CDATA[FOSS Nova Factory Finder API ]]>${project.version}</doctitle>
-          <header><![CDATA[FOSS Nova Factory Finder API ]]>${project.version}</header>
-          <footer><![CDATA[FOSS Nova Factory Finder API ]]>${project.version}</footer>
-          <bottom><![CDATA[<i>Copyright &#169;, 2012 FOSS Nova Software Foundation (FNSF)</i>]]></bottom>
         </configuration>
       </plugin>
     </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>${maven.compiler.plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>${maven.checkstyle.plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>${maven.javadoc.plugin.version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 
 </project>
