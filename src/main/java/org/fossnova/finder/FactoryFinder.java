@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, FOSS Nova Software foundation (FNSF),
+ * Copyright (c) 2012-2016, FOSS Nova Software foundation (FNSF),
  * and individual contributors as indicated by the @author tags.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -20,29 +20,47 @@
 package org.fossnova.finder;
 
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
+import static java.security.AccessController.doPrivileged;
 
 /**
- * Class loader leak free factory finder utility.
- * This class is alternative to <code>java.util.ServiceLoader</code>.
- * It always ignores current context class loader
- * which is many times the main cause of various class loader leaks.
+ * Factory finder utility as alternative to <code>java.util.ServiceLoader</code>.
+ * Its main design goal is to avoid class loader leaks thus it completely
+ * ignores current context classloader and creates no caches internally.
  *
- * @author <a href="mailto:opalka dot richard at gmail dot com">Richard Opalka</a>
+ * @author <a href="mailto:opalka.richard@gmail.com">Richard Opalka</a>
  */
 public final class FactoryFinder {
 
+    private static final String PREFIX = "META-INF/services/";
+
+    private static final AccessControlContext ACC;
+
+    static {
+        ACC = System.getSecurityManager() != null ? AccessController.getContext() : null;
+    }
+
     private FactoryFinder() {
-        // no instances
+        // no instantiation
     }
 
     /**
      * Instantiates a factory object given the factory's interface class.
+     * First it seeks for system property <B>-DfactoryIface=factoryImpl</B>.
+     * If such property is not specified then <B>factoryIface</B> classloader
+     * is inspected whether it contains <B>META-INF/services/factoryIface</B> entity.
+     * If neither system property nor META-INF service is defined exception is thrown.
+     * If either system property or META-INF service is defined
+     * <B>factoryIface</B> classloader is used to instantiate the implementation class.
      *
-     * @param factoryIface required factory interface class to look impl. for
+     * @param factoryIface required factory interface class to look implementation for
+     * @param <T> interface class type
      * @return a factory object
      */
     public static <T> T find( final Class< T > factoryIface ) {
@@ -51,13 +69,20 @@ public final class FactoryFinder {
 
     /**
      * Instantiates a factory object given the factory's interface class.
+     * First it seeks for system property <B>-DfactoryIface=factoryImpl</B>.
+     * If such property is not specified then <B>factoryIface</B> classloader
+     * is inspected whether it contains <B>META-INF/services/factoryIface</B> entity.
+     * If neither system property nor META-INF service nor <B>fallbackImpl</B> is defined exception is thrown.
+     * If either system property or META-INF service or <B>fallbackImpl</B> is defined
+     * <B>factoryIface</B> classloader is used to instantiate the implementation class.
      *
      * @param factoryIface required factory interface class to look impl. for
-     * @param fallbackFactoryImplName optional fallback factory impl. class name
+     * @param fallbackImpl optional fallback factory impl. class name
+     * @param <T> interface class type
      * @return a factory object
      */
     @SuppressWarnings( "unchecked" )
-    public static <T> T find( final Class< T > factoryIface, final String fallbackFactoryImplName ) {
+    public static <T> T find( final Class< T > factoryIface, final String fallbackImpl ) {
         if ( factoryIface == null ) {
             throw new IllegalArgumentException( "Factory interface class cannot be null" );
         }
@@ -67,7 +92,7 @@ public final class FactoryFinder {
             factoryImplClassName = getFactoryImplClassNameFromServiceProvider( factoryIface.getName(), loader );
         }
         if ( factoryImplClassName == null ) {
-            factoryImplClassName = fallbackFactoryImplName;
+            factoryImplClassName = fallbackImpl;
         }
         if ( factoryImplClassName == null ) {
             throw new RuntimeException( "Factory implementation for interface '" + factoryIface.getName() + "' not found" );
@@ -76,23 +101,27 @@ public final class FactoryFinder {
     }
 
     private static String getFactoryImplFromSystemProperty( final String factoryIfaceName ) {
+        final SecurityManager sm = System.getSecurityManager();
+        if ( sm != null ) {
+            return doPrivileged( new PrivilegedAction< String >() {
+                public String run() {
+                    return System.getProperty( factoryIfaceName );
+                }
+            }, ACC );
+        }
         return System.getProperty( factoryIfaceName );
     }
 
     private static String getFactoryImplClassNameFromServiceProvider( final String factoryIfaceName, final ClassLoader loader ) {
-        final String resourceName = "META-INF/services/" + factoryIfaceName;
-        final InputStream is = getResource( resourceName, loader );
+        final String resourceName = PREFIX + factoryIfaceName;
         String factoryImplName = null;
-        BufferedReader reader = null;
-        if ( is != null ) {
-            try {
-                reader = new BufferedReader( new InputStreamReader( is, "UTF-8" ) );
+        try ( final InputStream is = loader.getResourceAsStream( resourceName ) ) {
+            if ( is != null ) {
+                final BufferedReader reader = new BufferedReader( new InputStreamReader( is, "UTF-8" ) );
                 factoryImplName = reader.readLine().trim();
-            } catch ( final IOException e ) {
-                // ignored
-            } finally {
-                safeClose( reader );
             }
+        } catch ( final IOException e ) {
+            // ignored
         }
         return isDefined( factoryImplName ) ? factoryImplName : null;
     }
@@ -105,24 +134,6 @@ public final class FactoryFinder {
             throw new RuntimeException( "Factory '" + factoryImplClassName + "' not found", e );
         } catch ( final Exception e ) {
             throw new RuntimeException( "Factory '" + factoryImplClassName + "' not instatiated", e );
-        }
-    }
-
-    private static InputStream getResource( final String resource, final ClassLoader loader ) {
-        InputStream is = ClassLoader.getSystemResourceAsStream( resource );
-        if ( is == null ) {
-            is = loader.getResourceAsStream( resource );
-        }
-        return is;
-    }
-
-    private static void safeClose( final Closeable c ) {
-        if ( c != null ) {
-            try {
-                c.close();
-            } catch ( final IOException e ) {
-                // ignored
-            }
         }
     }
 
