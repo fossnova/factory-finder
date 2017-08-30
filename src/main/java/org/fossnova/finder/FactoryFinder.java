@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016, FOSS Nova Software foundation (FNSF),
+ * Copyright (c) 2012-2017, FOSS Nova Software foundation (FNSF),
  * and individual contributors as indicated by the @author tags.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -31,8 +31,8 @@ import static java.security.AccessController.doPrivileged;
 
 /**
  * Factory finder utility as alternative to <code>java.util.ServiceLoader</code>.
- * Its main design goal is to avoid class loader leaks thus it completely
- * ignores current context classloader and creates no caches internally.
+ * Its main design goal is to avoid class loader leaks.
+ * To achieve this it creates no caches internally.
  *
  * @author <a href="mailto:opalka.richard@gmail.com">Richard Opalka</a>
  */
