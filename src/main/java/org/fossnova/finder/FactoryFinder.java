@@ -115,7 +115,7 @@ public final class FactoryFinder {
     private static String getFactoryImplClassNameFromServiceProvider( final String factoryIfaceName, final ClassLoader loader ) {
         final String resourceName = PREFIX + factoryIfaceName;
         String factoryImplName = null;
-        try ( final InputStream is = loader.getResourceAsStream( resourceName ) ) {
+        try ( InputStream is = loader.getResourceAsStream( resourceName ) ) {
             if ( is != null ) {
                 final BufferedReader reader = new BufferedReader( new InputStreamReader( is, "UTF-8" ) );
                 factoryImplName = reader.readLine().trim();
