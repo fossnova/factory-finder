@@ -32,7 +32,7 @@ import static java.security.AccessController.doPrivileged;
 /**
  * Factory finder utility as alternative to <code>java.util.ServiceLoader</code>.
  * Its main design goal is to avoid class loader leaks.
- * To achieve this it creates no caches internally.
+ * To achieve this it doesn't create any internal caches.
  *
  * @author <a href="mailto:opalka.richard@gmail.com">Richard Opalka</a>
  */
