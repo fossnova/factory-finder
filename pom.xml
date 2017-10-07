@@ -27,7 +27,7 @@
   <name>FOSS Nova Factory Finder Utility</name>
   <groupId>org.fossnova</groupId>
   <artifactId>fossnova-factory-finder</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <url>http://fossnova.org/factory-finder</url>
 
   <parent>
