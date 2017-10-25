@@ -30,9 +30,8 @@ import java.security.PrivilegedAction;
 import static java.security.AccessController.doPrivileged;
 
 /**
- * Factory finder utility as alternative to <code>java.util.ServiceLoader</code>.
- * Its main design goal is to avoid class loader leaks.
- * To achieve this it doesn't create any internal caches.
+ * Stateless utility class as alternative to <code>java.util.ServiceLoader</code>.
+ * Its main design goal is to avoid class loader leaks thus it never caches anything.
  *
  * @author <a href="mailto:opalka.richard@gmail.com">Richard Opalka</a>
  */
@@ -55,13 +54,13 @@ public final class FactoryFinder {
      * First it seeks for system property <B>-DfactoryIface=factoryImpl</B>.
      * If such property is not specified then <B>factoryIface</B> classloader
      * is inspected whether it contains <B>META-INF/services/factoryIface</B> entity.
-     * If neither system property nor META-INF service is defined exception is thrown.
      * If either system property or META-INF service is defined
      * <B>factoryIface</B> classloader is used to instantiate the implementation class.
      *
      * @param factoryIface required factory interface class to look implementation for
      * @param <T> interface class type
-     * @return a factory object
+     * @return factory implementation
+     * @throws RuntimeException if factory implementation cannot be found or instantiated
      */
     public static <T> T find( final Class< T > factoryIface ) {
         return find( factoryIface, null );
@@ -72,19 +71,19 @@ public final class FactoryFinder {
      * First it seeks for system property <B>-DfactoryIface=factoryImpl</B>.
      * If such property is not specified then <B>factoryIface</B> classloader
      * is inspected whether it contains <B>META-INF/services/factoryIface</B> entity.
-     * If neither system property nor META-INF service nor <B>fallbackImpl</B> is defined exception is thrown.
      * If either system property or META-INF service or <B>fallbackImpl</B> is defined
      * <B>factoryIface</B> classloader is used to instantiate the implementation class.
      *
-     * @param factoryIface required factory interface class to look impl. for
-     * @param fallbackImpl optional fallback factory impl. class name
+     * @param factoryIface required factory interface class to look implementation for
+     * @param fallbackImpl optional fallback factory implementation class name
      * @param <T> interface class type
-     * @return a factory object
+     * @return factory implementation
+     * @throws RuntimeException if factory implementation cannot be found or instantiated
      */
     @SuppressWarnings( "unchecked" )
     public static <T> T find( final Class< T > factoryIface, final String fallbackImpl ) {
         if ( factoryIface == null ) {
-            throw new IllegalArgumentException( "Factory interface class cannot be null" );
+            throw new NullPointerException( "Factory interface class cannot be null" );
         }
         final ClassLoader loader = factoryIface.getClassLoader();
         String factoryImplClassName = getFactoryImplFromSystemProperty( factoryIface.getName() );
